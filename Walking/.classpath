@@ -7,5 +7,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/Behaviors"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/CommonInterface"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/JBotSim"/>
+	<classpathentry exported="true" kind="lib" path="matlabcontrol-4.1.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

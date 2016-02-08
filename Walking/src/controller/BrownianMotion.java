@@ -1,7 +1,11 @@
 package controller;
 
+import java.lang.reflect.Array;
 import java.util.Random;
 
+import matlabcontrol.*;
+import matlabcontrol.extensions.MatlabNumericArray;
+import matlabcontrol.extensions.MatlabTypeConverter;
 import controllers.Controller;
 import simulation.Simulator;
 import simulation.robot.CISensorWrapper;
@@ -19,12 +23,18 @@ public class BrownianMotion extends Controller {
 	private DifferentialDriveRobot robo;
 	private double cumTime, stepSize, minimumSteps;
 	private Random rand;
+	
+	private MatlabProxyFactory factory;
+	private MatlabProxy proxy;
+	MatlabTypeConverter processor;
+	MatlabNumericArray array;
+	
 	public enum State {
 			SET_STEP, STEP, CHANGE_ORIENTATION
 	}
 	private State currentState = State.SET_STEP;
 
-	public BrownianMotion(Simulator simulator, Robot robot, Arguments args) {
+	public BrownianMotion(Simulator simulator, Robot robot, Arguments args) throws MatlabInvocationException {
 		super(simulator, robot, args);
 		// TODO Auto-generated constructor stub
 		robo = (DifferentialDriveRobot)robot;
@@ -32,6 +42,24 @@ public class BrownianMotion extends Controller {
 		cumTime = 0;
 		minimumSteps = 1000;
 		rand = new Random();
+		
+		
+		try{		
+			factory = new MatlabProxyFactory();
+			proxy = factory.getProxy();
+			
+			proxy.eval("gaussian_distribution");
+			
+			//Get result
+			processor = new MatlabTypeConverter(proxy);
+			array = processor.getNumericArray("brownianSteps");
+			
+			
+		} catch (MatlabConnectionException matConExcep){
+			matConExcep.printStackTrace();
+		}
+		
+		
 	}
 	
 	public void controlStep(double time){
@@ -40,7 +68,19 @@ public class BrownianMotion extends Controller {
 		
 		switch(currentState){
 		case SET_STEP:
-			setStep(time);
+			
+			
+				setStep(time);
+			
+			
+//			try{
+//				proxy.eval("display('hey!')");
+//			} catch (MatlabInvocationException matInvokeExcep){
+//				matInvokeExcep.printStackTrace();
+//			}
+//			
+			
+			
 			break;
 			
 		case STEP:
@@ -54,8 +94,16 @@ public class BrownianMotion extends Controller {
 	
 	}
 
-	private void setStep(double clock) {
+	private void setStep(double clock)  {
 		// TODO Auto-generated method stub
+		
+		
+			
+			
+		
+		
+		System.out.println(array.getRealValue(0));
+		
 		stepSize = Math.abs(((int) (rand.nextGaussian() * minimumSteps + minimumSteps)));
 		stepSize = stepSize + clock;
 		currentState = State.STEP;
